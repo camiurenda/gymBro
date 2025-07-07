@@ -1,12 +1,15 @@
 import React from 'react';
 
-// LA CORRECCIÓN ESTÁ AQUÍ: Añadimos ` = []` para darle un valor por defecto.
-const ExerciseCard = ({ title, details, muscles, reps, setsCompleted = [], onSetChange }) => {
+const ExerciseCard = ({ title, details, muscles, reps, setsData = [], onSetChange }) => {
   
   const numberOfSets = parseInt(reps) || 0;
 
-  // Esta línea ahora es segura, porque en el peor de los casos, setsCompleted será `[]`
-  const setsStatus = setsCompleted.length > 0 ? setsCompleted : Array(numberOfSets).fill(false);
+  // Si no hay datos guardados, creamos una estructura por defecto.
+  const sets = setsData.length > 0 ? setsData : Array(numberOfSets).fill({
+    completed: false,
+    weight: '',
+    reps: ''
+  });
 
   return (
     <div className="exercise-card">
@@ -19,18 +22,36 @@ const ExerciseCard = ({ title, details, muscles, reps, setsCompleted = [], onSet
 
       <div className="sets-tracker">
         <h5>Seguimiento de Series:</h5>
-        <div className="sets-checkboxes">
-          {setsStatus.map((isCompleted, index) => (
-            <div key={index} className="set-item">
-              <input
-                type="checkbox"
-                id={`${title}-set-${index}`}
-                checked={isCompleted}
-                onChange={() => onSetChange(index)}
-              />
-              <label htmlFor={`${title}-set-${index}`}>
-                Serie {index + 1}
-              </label>
+        <div className="sets-grid">
+          {sets.map((setData, index) => (
+            <div key={index} className={`set-row ${setData.completed ? 'completed' : ''}`}>
+              <div className="set-label">
+                <input
+                  type="checkbox"
+                  id={`${title}-set-${index}`}
+                  checked={setData.completed}
+                  onChange={(e) => onSetChange(index, 'completed', e.target.checked)}
+                />
+                <label htmlFor={`${title}-set-${index}`}>
+                  Serie {index + 1}
+                </label>
+              </div>
+              <div className="set-inputs">
+                <input
+                  type="number"
+                  className="set-input"
+                  placeholder="kg"
+                  value={setData.weight}
+                  onChange={(e) => onSetChange(index, 'weight', e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="set-input"
+                  placeholder="reps"
+                  value={setData.reps}
+                  onChange={(e) => onSetChange(index, 'reps', e.target.value)}
+                />
+              </div>
             </div>
           ))}
         </div>

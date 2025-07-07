@@ -1,47 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import ExerciseCard from './excersicecard.js';
+import ExerciseCard from './excersicecard';
 
 const DaySection = ({ day, title, theme, exercises }) => {
-  // Creamos una clave única para este día para guardarla en localStorage
   const storageKey = `progress-${day}`;
 
-  // --- El Cerebro del Componente ---
-
-  // 1. INICIALIZACIÓN DEL ESTADO:
-  // Al iniciar, intentamos cargar el progreso guardado desde localStorage.
-  // Si no hay nada, creamos un objeto de progreso vacío.
+  // El estado ahora guardará objetos más complejos.
+  // Ejemplo: { "Prensa 45°": [{ completed: true, weight: '100', reps: '12' }, ...] }
   const [progress, setProgress] = useState(() => {
     const savedProgress = localStorage.getItem(storageKey);
     return savedProgress ? JSON.parse(savedProgress) : {};
   });
 
-  // 2. EFECTO DE GUARDADO AUTOMÁTICO:
-  // Este "efecto" se ejecuta CADA VEZ que el estado `progress` cambia.
-  // Guarda el estado actual en localStorage.
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(progress));
   }, [progress, storageKey]);
 
-
-  // 3. FUNCIÓN PARA ACTUALIZAR EL PROGRESO:
-  // Esta función se la pasaremos a cada ExerciseCard.
-  const handleSetCompletionChange = (exerciseTitle, setIndex) => {
-    // Creamos una copia profunda del estado para no mutar el original
+  // La función de actualización ahora maneja cambios en el checkbox, peso o reps.
+  const handleSetChange = (exerciseTitle, setIndex, field, value) => {
     const newProgress = JSON.parse(JSON.stringify(progress));
 
-    // Si es la primera vez que interactuamos con este ejercicio, inicializamos su progreso
+    // Si es la primera vez que interactuamos, creamos la estructura de datos.
     if (!newProgress[exerciseTitle]) {
       const numSets = parseInt(exercises
         .flatMap(group => group.list)
         .find(ex => ex.title === exerciseTitle)
         .reps) || 0;
-      newProgress[exerciseTitle] = Array(numSets).fill(false);
+      
+      // Cada serie ahora es un objeto completo.
+      newProgress[exerciseTitle] = Array(numSets).fill({
+        completed: false,
+        weight: '',
+        reps: ''
+      });
     }
-    
-    // Invertimos el estado del set (marcado/desmarcado)
-    newProgress[exerciseTitle][setIndex] = !newProgress[exerciseTitle][setIndex];
 
-    // Actualizamos el estado principal de DaySection, lo que dispara el guardado automático
+    // Actualizamos el campo específico (completed, weight, o reps) del set específico.
+    newProgress[exerciseTitle][setIndex] = {
+        ...newProgress[exerciseTitle][setIndex],
+        [field]: value
+    };
+
     setProgress(newProgress);
   };
 
@@ -60,10 +58,10 @@ const DaySection = ({ day, title, theme, exercises }) => {
                   details={ex.details}
                   muscles={ex.muscles}
                   reps={ex.reps}
-                  // Le pasamos el estado guardado para este ejercicio en particular
-                  setsCompleted={progress[ex.title] || []}
-                  // Le pasamos la función para que nos notifique cuando algo cambie
-                  onSetChange={(setIndex) => handleSetCompletionChange(ex.title, setIndex)}
+                  // Le pasamos el array de objetos de series para este ejercicio.
+                  setsData={progress[ex.title] || []}
+                  // Le pasamos la función de actualización.
+                  onSetChange={(setIndex, field, value) => handleSetChange(ex.title, setIndex, field, value)}
                 />
               ))}
             </div>
