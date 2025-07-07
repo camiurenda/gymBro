@@ -524,8 +524,9 @@ body {
 }
 
 .set-input {
-  width: 60px;
+  width: 120px;
   padding: 8px;
+  margin: 5px;
   background-color: var(--bg-main);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -621,10 +622,18 @@ input::-webkit-inner-spin-button {
 
 .navbar {
   display: flex;
-  justify-content: center;
+  justify-content: space-between; /* Alinea los grupos a los extremos */
+  align-items: center;
   background-color: var(--bg-container);
-  padding: 10px 0;
+  padding: 10px 20px; /* Añadimos padding horizontal */
   border-bottom: 1px solid var(--border-color);
+}
+
+/* Contenedores para los grupos de links */
+.nav-links-left, .nav-links-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .nav-link {
@@ -633,7 +642,7 @@ input::-webkit-inner-spin-button {
   gap: 8px;
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 10px 20px;
+  padding: 10px 15px;
   border-radius: 8px;
   transition: all 0.2s ease-in-out;
   font-weight: bold;
@@ -644,8 +653,80 @@ input::-webkit-inner-spin-button {
   color: var(--text-primary);
 }
 
-/* Estilo especial para el link de la página activa */
 .nav-link.active {
   background-color: var(--accent-blue);
   color: #1a1a1a;
+}
+
+/* Estilos específicos para el botón de registrar peso */
+.log-weight-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit; /* Usa la misma fuente que el resto */
+  font-size: inherit; /* Usa el mismo tamaño de fuente */
+}
+
+/* ================================================
+  Estilos para la Página del Dashboard
+  ================================================
+*/
+.dashboard-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.chart-card {
+  background-color: var(--bg-card);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+}
+
+.chart-card h3 {
+  color: var(--accent-blue);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.exercise-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: var(--bg-container);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1em;
+}
+
+.chart-placeholder {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 40px 0;
+}
+
+.weight-input-section {
+  display: flex;
+
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.save-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--accent-blue);
+  color: #1a1a1a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.save-button:hover {
+  opacity: 0.85;
 }
