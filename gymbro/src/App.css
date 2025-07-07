@@ -377,4 +377,44 @@ body {
     body {
         padding: 0;
     }
+
+  /* Hacemos que los títulos de sección sean más pequeños en móvil */
+  .section-title {
+    font-size: 1.4em;
+    margin: 30px 0 15px 0;
+  }
+
+  /*
+    LA CLAVE: Reducimos el espaciado del contenedor de foco
+    y de las tarjetas que están adentro para que no se "coman" el espacio.
+  */
+  .todays-focus {
+    padding: 5px; /* Reducimos drásticamente el padding */
+    margin: 10px;   /* Reducimos el margen */
+    border-width: 1px;
+  }
+
+  /* Le quitamos el margen a la tarjeta del día CUANDO está dentro del foco */
+  .todays-focus .day-section {
+    margin: 0;
+  }
+
+  /* También reducimos el padding interno del contenido del día */
+  .day-content {
+    padding: 15px;
+  }
+
+  .muscle-group {
+    padding: 15px;
+  }
+
+  /* Hacemos los títulos de las tarjetas de ejercicio un poco más pequeños */
+  .exercise-card h4 {
+    font-size: 1em;
+  }
+
+  /* Y el texto de los detalles */
+  .exercise-details {
+    font-size: 0.85em;
+  }
 }
