@@ -98,19 +98,64 @@ const trainingDays = [
   }
 ];
 
+const dayMap = {
+  1: 'LUNES',
+  2: 'MARTES',
+  3: 'MIÉRCOLES',
+  4: 'JUEVES',
+  5: 'VIERNES',
+  6: 'SÁBADO',
+  0: 'DOMINGO'
+};
+
+// 2. Obtenemos el día de hoy.
+const today = new Date();
+const currentDayName = dayMap[today.getDay()];
+
+// 3. Buscamos el entrenamiento de hoy en nuestro array.
+const todaysWorkout = trainingDays.find(day => day.day === currentDayName);
+
+// 4. Creamos una lista con los otros entrenamientos.
+const otherWorkouts = trainingDays.filter(day => day.day !== currentDayName);
+
+
+// --- COMPONENTE PRINCIPAL APP ---
+
 function App() {
   return (
     <div className="container">
       <Header />
-      <TimeInfo />
-      <MobilitySection />
 
-      {/* Mapeamos el array de días para crear dinámicamente cada sección.
-        Esto es más eficiente que escribir cada componente a mano.
-      */}
-      {trainingDays.map(dayData => (
-        <DaySection 
-          key={dayData.day} // La key es importante para que React identifique cada elemento
+      {/* --- SECCIÓN PRINCIPAL: Muestra el plan de hoy o un mensaje de descanso --- */}
+      <div className="todays-focus">
+        {todaysWorkout ? (
+          // Si hay entrenamiento para hoy, lo mostramos con el componente DaySection
+          <div>
+            <h2 className="section-title">¡Plan para hoy, {currentDayName}!</h2>
+            <DaySection
+              key={todaysWorkout.day}
+              day={todaysWorkout.day}
+              title={todaysWorkout.title}
+              theme={todaysWorkout.theme}
+              exercises={todaysWorkout.exercises}
+            />
+          </div>
+        ) : (
+          // Si no hay entrenamiento, mostramos un mensaje de descanso
+          <div className="rest-day-card">
+            <h2 className="section-title">¡Hoy es {currentDayName}!</h2>
+            <p>Día de descanso. ¡Aprovechá para recuperar energías!</p>
+          </div>
+        )}
+      </div>
+
+
+      {/* --- OTRAS SECCIONES --- */}
+
+      <h2 className="section-title">Próximos Entrenamientos</h2>
+      {otherWorkouts.map(dayData => (
+        <DaySection
+          key={dayData.day}
           day={dayData.day}
           title={dayData.title}
           theme={dayData.theme}
@@ -118,6 +163,8 @@ function App() {
         />
       ))}
 
+      <TimeInfo />
+      <MobilitySection />
       <ProgressionTable />
       <TipsSection />
     </div>
