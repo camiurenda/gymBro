@@ -1,12 +1,11 @@
 import React from 'react';
 
-
-// El componente ahora recibe dos nuevas props: `setsCompleted` y `onSetChange`
-const ExerciseCard = ({ title, details, muscles, reps, setsCompleted, onSetChange }) => {
+// LA CORRECCIÓN ESTÁ AQUÍ: Añadimos ` = []` para darle un valor por defecto.
+const ExerciseCard = ({ title, details, muscles, reps, setsCompleted = [], onSetChange }) => {
   
   const numberOfSets = parseInt(reps) || 0;
 
-  // Creamos un array de la longitud correcta en caso de que aún no haya progreso guardado
+  // Esta línea ahora es segura, porque en el peor de los casos, setsCompleted será `[]`
   const setsStatus = setsCompleted.length > 0 ? setsCompleted : Array(numberOfSets).fill(false);
 
   return (
@@ -27,8 +26,6 @@ const ExerciseCard = ({ title, details, muscles, reps, setsCompleted, onSetChang
                 type="checkbox"
                 id={`${title}-set-${index}`}
                 checked={isCompleted}
-                // Al cambiar, ya no maneja la lógica aquí.
-                // Simplemente llama a la función que le pasó su padre (DaySection).
                 onChange={() => onSetChange(index)}
               />
               <label htmlFor={`${title}-set-${index}`}>
