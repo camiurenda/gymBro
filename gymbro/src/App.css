@@ -618,3 +618,34 @@ input::-webkit-inner-spin-button {
 .exercise-card.clickable {
   cursor: pointer;
 }
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  background-color: var(--bg-container);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  font-weight: bold;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Estilo especial para el link de la página activa */
+.nav-link.active {
+  background-color: var(--accent-blue);
+  color: #1a1a1a;
+}
