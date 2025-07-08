@@ -6,8 +6,6 @@
   --bg-container: #242424;
   --bg-card: #2c2c2c;
   --bg-card-hover: #383838;
-  --bg-table-even: #282828;
-  --bg-table-hover: #3a4a58;
   --text-primary: #f0f0f0;
   --text-secondary: #cccccc;
   --text-on-gradient: #ffffff;
@@ -18,10 +16,7 @@
   --gradient-martes: linear-gradient(135deg, #fdcb6e, #e17055);
   --gradient-miercoles: linear-gradient(135deg, #6c5ce7, #a29bfe);
   --gradient-jueves: linear-gradient(135deg, #00b894, #00cec9);
-  --gradient-time-info: linear-gradient(135deg, #4b4b4b, #3c3c3c);
-  --gradient-mobility: linear-gradient(135deg, #3a5a40, #2a4830);
   --gradient-tips: linear-gradient(135deg, #d9534f, #c9302c);
-  --gradient-table-header: linear-gradient(135deg, #2d3436, #4a4e52);
 }
 
 * {
@@ -41,9 +36,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   background: var(--bg-container);
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  overflow-x: hidden; /* Previene scroll horizontal inesperado */
 }
 
 /* ================================================
@@ -107,42 +100,22 @@ body {
   overflow: hidden;
 }
 
-.header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  animation: pulse 4s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
 .header h1 {
-  font-size: 3em;
+  font-size: 2.8em;
   margin-bottom: 10px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  position: relative;
-  z-index: 1;
 }
 
 .header p {
   font-size: 1.2em;
   opacity: 0.9;
-  position: relative;
-  z-index: 1;
 }
 
 /* ================================================
   Secciones Principales (Foco, Títulos, Tarjetas)
   ================================================ */
 .todays-focus {
-  padding: 10px 20px;
+  padding: 15px;
   margin: 20px;
   border: 2px solid var(--accent-blue);
   border-radius: 20px;
@@ -151,23 +124,16 @@ body {
 
 .section-title {
   text-align: center;
-  margin: 40px 0 20px 0;
-  font-size: 1.8em;
+  margin: 35px 0 20px 0;
+  font-size: 1.6em;
   color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
 }
 
 .rest-day-card {
-  padding: 40px;
+  padding: 40px 20px;
   text-align: center;
-  border-radius: 15px;
-}
-
-.rest-day-card p {
-  font-size: 1.2em;
-  color: var(--text-secondary);
-  margin-top: 10px;
 }
 
 .time-info, .mobility-section, .tips-section, .progression-table, .day-section {
@@ -176,21 +142,32 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.time-info, .mobility-section, .tips-section {
+.day-section {
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.time-info, .mobility-section, .tips-section, .progression-table {
   padding: 25px;
 }
 
-.time-info { background: var(--gradient-time-info); text-align: center; }
-.mobility-section { background: var(--gradient-mobility); }
-.tips-section { background: var(--gradient-tips); color: var(--text-on-gradient); }
-
-.time-info h3, .mobility-section h3, .tips-section h3 {
-  margin-bottom: 15px;
+.day-header {
+  padding: 20px;
+  color: var(--text-on-gradient);
   font-size: 1.5em;
+  font-weight: bold;
   text-align: center;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
-.time-info h3 { color: var(--accent-blue); }
-.mobility-section h3 { color: #a8e6cf; }
+
+.lunes { background: var(--gradient-lunes); }
+.martes { background: var(--gradient-martes); }
+.miercoles { background: var(--gradient-miercoles); }
+.jueves { background: var(--gradient-jueves); }
+
+.day-content {
+  padding: 25px;
+}
 
 /* ================================================
   Tarjetas de Ejercicio y Grillas
@@ -268,7 +245,7 @@ body {
   justify-content: space-between;
   padding: 8px;
   border-radius: 8px;
-  background-color: var(--bg-card);
+  background-color: var(--bg-card-hover); /* Un poco más oscuro para diferenciar */
   transition: background-color 0.3s ease;
 }
 .set-row.completed { background-color: rgba(116, 185, 255, 0.1); }
@@ -285,12 +262,7 @@ body {
   text-align: center;
   font-size: 0.9em;
 }
-input[type=number] { -moz-appearance: textfield; }
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+
 .set-item input[type="checkbox"] {
   appearance: none;
   cursor: pointer;
@@ -335,7 +307,7 @@ input::-webkit-inner-spin-button {
 }
 .modal-content {
   background-color: var(--bg-container);
-  padding: 30px;
+  padding: 25px;
   border-radius: 15px;
   max-width: 600px;
   width: 90%;
@@ -354,18 +326,12 @@ input::-webkit-inner-spin-button {
   color: var(--text-secondary);
   font-size: 1.5em;
   cursor: pointer;
-  transition: color 0.2s ease;
 }
-.modal-close-button:hover { color: var(--accent-blue); }
-.exercise-details-modal h2 { color: var(--accent-blue); margin-bottom: 20px; text-align: center; }
-.exercise-gif { width: 100%; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-.exercise-details-modal h3 { color: var(--text-primary); border-bottom: 2px solid var(--accent-blue); padding-bottom: 5px; margin-top: 25px; margin-bottom: 10px; }
-.exercise-details-modal p { color: var(--text-secondary); line-height: 1.6; }
 
 /* ================================================
   Dashboard
   ================================================ */
-.dashboard-container { padding: 20px; display: flex; flex-direction: column; gap: 30px; }
+.dashboard-container { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
 .chart-card { background-color: var(--bg-card); padding: 20px; border-radius: 15px; border: 1px solid var(--border-color); }
 .chart-card h3 { color: var(--accent-blue); margin-bottom: 20px; text-align: center; }
 .exercise-select {
@@ -388,9 +354,7 @@ input::-webkit-inner-spin-button {
   color: #1a1a1a;
   font-weight: bold;
   cursor: pointer;
-  transition: opacity 0.2s ease;
 }
-.save-button:hover { opacity: 0.85; }
 
 /* ================================================
   Iconos (Compartidos)
@@ -399,40 +363,76 @@ input::-webkit-inner-spin-button {
 .section-icon { margin-right: 12px; color: var(--accent-blue); }
 
 /* ================================================
-  Media Queries para Responsividad
+  ################################################
+  ###   ESTILOS PARA PANTALLAS PEQUEÑAS (MÓVIL)  ###
+  ################################################
   ================================================ */
 @media (max-width: 768px) {
-  body { padding: 0; }
-  .container { margin: 0; border-radius: 0; }
-  .header h1 { font-size: 2em; }
-  .exercise-grid { grid-template-columns: 1fr; }
-  .section-title { font-size: 1.4em; margin: 30px 0 15px 0; }
-  .todays-focus { padding: 5px; margin: 10px; border-width: 1px; }
-  .todays-focus .day-section { margin: 0; }
-  .day-content, .muscle-group { padding: 15px; }
-  .exercise-card h4 { font-size: 1em; }
-  .exercise-details { font-size: 0.85em; }
+  /* Reducimos el tamaño de fuente base para que todo se achique proporcionalmente */
+  body {
+    font-size: 14px;
+    padding: 0;
+  }
+  .container {
+    margin: 0;
+    border-radius: 0;
+    padding-bottom: 20px; /* Espacio al final del scroll */
+  }
 
-  /* --- CORRECCIÓN PARA EL REGISTRO DE SERIES EN MÓVIL --- */
-  .set-row {
-    flex-direction: column; /* Apila los elementos verticalmente */
-    align-items: flex-start; /* Alinea todo a la izquierda */
-    gap: 10px;
-  }
-  .set-inputs {
-    width: 100%; /* Hace que el contenedor de inputs ocupe todo el ancho */
-  }
-  .set-input {
-    flex-grow: 1; /* Permite que los inputs crezcan para llenar el espacio */
-  }
+  /* --- Navbar --- */
   .navbar {
     padding: 5px;
     justify-content: center;
   }
   .nav-link span {
-    display: none; /* Oculta el texto y deja solo los íconos en la navbar */
+    display: none; /* Oculta el texto, deja solo los íconos */
   }
   .nav-link {
     padding: 10px;
   }
+
+  /* --- Tamaños de Títulos --- */
+  .header h1 { font-size: 1.8em; }
+  .header p { font-size: 1em; }
+  .section-title { font-size: 1.3em; margin: 25px 0 15px 0; }
+  .day-header { font-size: 1.2em; }
+  .exercise-card h4 { font-size: 1em; }
+
+  /* --- Espaciados y Márgenes --- */
+  .day-section, .time-info, .mobility-section, .tips-section, .progression-table, .dashboard-container {
+    margin: 15px;
+    padding: 15px;
+  }
+  .day-content { padding: 15px; }
+  .exercise-card { padding: 15px; }
+  .header { padding: 30px 15px; }
+
+  /* --- Foco del Día --- */
+  .todays-focus {
+    padding: 5px;
+    margin: 15px;
+    border-width: 1px;
+  }
+  .todays-focus .day-section {
+    margin: 0;
+  }
+
+  /* --- CORRECCIÓN FINAL PARA EL REGISTRO DE SERIES --- */
+  .set-row {
+    flex-direction: column; /* Apila los elementos verticalmente */
+    align-items: flex-start; /* Alinea todo a la izquierda */
+    gap: 12px; /* Un poco más de espacio vertical */
+    padding: 12px;
+  }
+  .set-inputs {
+    width: 100%; /* El contenedor de inputs ocupa todo el ancho */
+  }
+  .set-input {
+    flex-grow: 1; /* Los inputs crecen para llenar el espacio disponible */
+    width: auto; /* Anulamos el ancho fijo */
+  }
+
+  /* --- Dashboard --- */
+  .chart-card { padding: 15px; }
+  .chart-card h3 { margin-bottom: 15px; }
 }
