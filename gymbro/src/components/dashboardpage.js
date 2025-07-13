@@ -1,46 +1,35 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/authContext';
+import { db } from '../firebase-config';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Registramos los componentes de Chart.js que vamos a usar.
-// Esto es necesario para que Chart.js sepa qué elementos dibujar.
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const DashboardPage = () => {
-  // --- ESTADOS DEL COMPONENTE ---
+  const { currentUser } = useAuth();
   const [exerciseProgress, setExerciseProgress] = useState({});
   const [availableExercises, setAvailableExercises] = useState([]);
   const [selectedExercise, setSelectedExercise] = useState('');
   const [exerciseChartData, setExerciseChartData] = useState({ datasets: [] });
   const [weightLog, setWeightLog] = useState([]);
 
-  // --- EFECTO PARA CARGAR TODOS LOS DATOS DESDE LOCALSTORAGE AL INICIAR ---
   useEffect(() => {
-    // 1. Cargar datos de progreso de ejercicios
-    const allProgress = {};
-    const exerciseSet = new Set();
+    if (!currentUser) return;
 
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith('progress-')) {
-        const dayData = JSON.parse(localStorage.getItem(key));
+    // --- LEER DATOS DESDE FIRESTORE ---
+    const fetchData = async () => {
+      // 1. Cargar datos de progreso de ejercicios
+      const allProgress = {};
+      const exerciseSet = new Set();
+      
+      // Creamos una consulta para traer TODOS los documentos de progreso de ESTE usuario
+      const q = query(collection(db, "userProgress"), where("__name__", ">=", currentUser.uid), where("__name__", "<=", currentUser.uid + '\uf8ff'));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const dayData = doc.data();
         for (const exerciseTitle in dayData) {
           if (!allProgress[exerciseTitle]) {
             allProgress[exerciseTitle] = [];
@@ -48,16 +37,29 @@ const DashboardPage = () => {
           exerciseSet.add(exerciseTitle);
           allProgress[exerciseTitle].push(...dayData[exerciseTitle]);
         }
-      }
-    }
-    setExerciseProgress(allProgress);
-    setAvailableExercises(Array.from(exerciseSet));
+      });
+      setExerciseProgress(allProgress);
+      setAvailableExercises(Array.from(exerciseSet));
 
-    // 2. Cargar datos de peso corporal
-    const savedWeightLog = JSON.parse(localStorage.getItem('bodyWeightLog')) || [];
-    setWeightLog(savedWeightLog);
-  }, []); // El array vacío [] significa que este efecto se ejecuta solo una vez.
+      // 2. Cargar datos de peso corporal
+      const weightsQuery = query(
+        collection(db, "weights"),
+        where("userId", "==", currentUser.uid),
+        orderBy("timestamp", "asc")
+      );
+      const weightsSnapshot = await getDocs(weightsQuery);
+      const weightsData = weightsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        // Convertir timestamp a un formato legible si es necesario
+        date: doc.data().timestamp?.toDate().toLocaleDateString() || new Date().toLocaleDateString(),
+      }));
+      setWeightLog(weightsData);
+    };
 
+    fetchData();
+  }, [currentUser]);
+  
   // --- EFECTO PARA ACTUALIZAR EL GRÁFICO CUANDO CAMBIA EL EJERCICIO SELECCIONADO ---
   useEffect(() => {
     if (selectedExercise && exerciseProgress[selectedExercise]) {

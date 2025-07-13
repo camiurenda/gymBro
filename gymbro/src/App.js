@@ -1,20 +1,31 @@
-// src/App.js
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/authContext';
-import './App.css';
 
-// Importamos componentes y páginas
+
+import './App.css';
 import Navbar from './components/navbar';
 import WorkoutPage from './components/workoutpage';
 import DashboardPage from './components/dashboardpage';
 import LoginPage from './pages/loginPage';
 import RegisterPage from './pages/registerPage';
 
-// Un componente especial para proteger rutas
+
 function ProtectedRoute({ children }) {
-  const { currentUser } = useAuth();
-  return currentUser ? children : <Navigate to="/login" />;
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    // Muestra un spinner o un mensaje de carga mientras se verifica el estado de autenticación
+    return <div>Cargando...</div>;
+  }
+
+  if (!currentUser) {
+    // Si no hay usuario, redirige a la página de login
+    return <Navigate to="/login" />;
+  }
+
+  // Si hay un usuario, renderiza el componente hijo (la ruta protegida)
+  return children;
 }
 
 function App() {

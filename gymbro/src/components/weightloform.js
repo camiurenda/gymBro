@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
+import { db } from '../firebase-config'; // Asegúrate de que la ruta sea correcta
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const WeightLogForm = ({ onSave }) => {
+const WeightLogForm = ({ userId, onClose }) => {
   const [weight, setWeight] = useState('');
 
-  const handleSave = () => {
-    // Llama a la función onSave pasada por props solo si el valor es válido
-    if (weight && !isNaN(weight)) {
-      onSave(parseFloat(weight));
+  const handleSave = async () => {
+    if (weight && !isNaN(weight) && userId) {
+      try {
+        await addDoc(collection(db, 'weights'), {
+          userId,
+          weight: parseFloat(weight),
+          timestamp: serverTimestamp(),
+        });
+        onClose(); // Cierra el modal después de guardar
+      } catch (error) {
+        console.error("Error al guardar el peso: ", error);
+      }
     }
   };
 
