@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { auth, db } from '../firebase-config';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { planNovia } from '../plans'; // ¡Importante! Usamos el plan desde el archivo central.
 
@@ -25,7 +25,8 @@ export function AuthProvider({ children }) {
     return userCredential;
   }
   
-  function login(email, password) {
+  async function login(email, password) {
+    await setPersistence(auth, browserLocalPersistence);
     return signInWithEmailAndPassword(auth, email, password);
   }
 
