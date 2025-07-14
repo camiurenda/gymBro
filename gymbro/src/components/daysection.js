@@ -40,34 +40,34 @@ const DaySection = ({ day, title, theme, exercises }) => {
   }, [currentUser, day]);
 
 
-  const handleSetChange = async (exerciseTitle, setIndex, field, value) => {
-    // No hacemos nada si el usuario no está logueado
+  const handleSetChange = (exerciseTitle, setIndex, field, value) => {
     if (!currentUser) return;
 
-    // 3. Creamos una copia del estado para trabajar
     const newProgress = JSON.parse(JSON.stringify(progress));
 
-    // Si es la primera vez, inicializamos la estructura para ese ejercicio
     if (!newProgress[exerciseTitle]) {
       const numSets = parseInt(exercises.flatMap(g => g.list).find(e => e.title === exerciseTitle).reps) || 0;
       newProgress[exerciseTitle] = Array(numSets).fill({ completed: false, weight: '', reps: '' });
     }
 
-    // Actualizamos el campo específico
     newProgress[exerciseTitle][setIndex] = {
       ...newProgress[exerciseTitle][setIndex],
       [field]: value
     };
 
-    // Actualizamos el estado local para una respuesta instantánea en la UI
     setProgress(newProgress);
+  };
 
-    // 4. GUARDAMOS EN FIRESTORE
-    // Apuntamos al mismo documento y usamos `setDoc` con `merge: true`.
-    // Esto es muy eficiente: solo actualiza los campos que cambiaron en el objeto,
-    // en lugar de reescribir todo el documento.
+  const handleSaveProgress = async (exerciseTitle) => {
+    if (!currentUser || !progress[exerciseTitle]) return;
+
+    const progressToSave = {
+      [exerciseTitle]: progress[exerciseTitle]
+    };
+
     const progressRef = doc(db, "userProgress", `${currentUser.uid}-${day}`);
-    await setDoc(progressRef, newProgress, { merge: true });
+    await setDoc(progressRef, progressToSave, { merge: true });
+    alert(`Progreso de "${exerciseTitle}" guardado!`);
   };
   
   // --- Lógica del Modal (no cambia) ---
@@ -93,6 +93,7 @@ const DaySection = ({ day, title, theme, exercises }) => {
                     exerciseData={ex}
                     setsData={progress[ex.title] || []}
                     onSetChange={(setIndex, field, value) => handleSetChange(ex.title, setIndex, field, value)}
+                    onSave={() => handleSaveProgress(ex.title)}
                     onCardClick={() => openExerciseDetails(ex)}
                   />
                 ))}

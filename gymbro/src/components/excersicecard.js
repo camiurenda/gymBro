@@ -7,9 +7,10 @@ import React from 'react';
  * - exerciseData: Un objeto con toda la info del ejercicio (title, details, reps, gifUrl, etc.).
  * - setsData: Un array de objetos, donde cada objeto representa una serie ({ completed, weight, reps }).
  * - onSetChange: Una función que se llama cuando se modifica cualquier input de una serie (el checkbox, el peso o las reps).
+ * - onSave: Una función que se llama para guardar el progreso del ejercicio actual.
  * - onCardClick: Una función que se llama cuando se hace clic en la tarjeta para abrir el modal de detalles.
  */
-const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onCardClick }) => {
+const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick }) => {
 // Desestructuramos los datos del ejercicio para usarlos más fácilmente en el JSX.
   const { title, details, muscles, reps } = exerciseData;
 
@@ -77,6 +78,15 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onCardCli
             </div>
           ))}
         </div>
+        <button 
+          className="save-progress-btn" 
+          onClick={(e) => {
+            e.stopPropagation(); // Evita que se abra el modal
+            onSave();
+          }}
+        >
+          Guardar Progreso
+        </button>
       </div>
     </div>
   );
