@@ -1,52 +1,44 @@
-// src/components/Navbar.js
-import React, { useState } from 'react';
+// src/components/navbar.js
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faChartLine, faSignOutAlt, faWeightHanging } from '@fortawesome/free-solid-svg-icons';
-import WeightLogForm from './weightloform'; // Asegúrate de que la ruta sea correcta
-import Modal from './modal'; // Asumiendo que tienes un componente Modal
+import { faHome, faChartLine, faSignOutAlt, faWeightScale } from '@fortawesome/free-solid-svg-icons'; // Usamos faWeightScale que es más apropiado
 
-const Navbar = () => {
-  const { logout, user } = useAuth(); // Obtener el usuario actual
+// 1. El Navbar ahora recibe la prop 'onLogWeightClick'
+const Navbar = ({ onLogWeightClick }) => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const [isWeightModalOpen, setWeightModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
       await logout();
       navigate('/login');
-    } catch {
-      console.error("Error al cerrar sesión");
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
     }
   };
 
   return (
-    <>
-      <nav className="navbar">
-        <div className="nav-links-left">
-          <NavLink to="/" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            <FontAwesomeIcon icon={faHome} /> <span>Entrenamiento</span>
-          </NavLink>
-          <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            <FontAwesomeIcon icon={faChartLine} /> <span>Progreso</span>
-          </NavLink>
-        </div>
-        <div className="nav-links-right">
-          <button className="nav-link log-weight-button" onClick={() => setWeightModalOpen(true)}>
-            <FontAwesomeIcon icon={faWeightHanging} /> <span>Registrar Peso</span>
-          </button>
-          <button className="nav-link" onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} /> <span>Cerrar Sesión</span>
-          </button>
-        </div>
-      </nav>
-      {user && (
-        <Modal isOpen={isWeightModalOpen} onClose={() => setWeightModalOpen(false)}>
-          <WeightLogForm userId={user.uid} onClose={() => setWeightModalOpen(false)} />
-        </Modal>
-      )}
-    </>
+    <nav className="navbar">
+      <div className="nav-links-left">
+        <NavLink to="/" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          <FontAwesomeIcon icon={faHome} /> <span>Entrenamiento</span>
+        </NavLink>
+        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          <FontAwesomeIcon icon={faChartLine} /> <span>Progreso</span>
+        </NavLink>
+      </div>
+      <div className="nav-links-right">
+        {/* 2. Este botón ahora simplemente llama a la función que le pasa App.js */}
+        <button className="nav-link log-weight-button" onClick={onLogWeightClick}>
+          <FontAwesomeIcon icon={faWeightScale} /> <span>Registrar Peso</span>
+        </button>
+        <button className="nav-link" onClick={handleLogout}>
+          <FontAwesomeIcon icon={faSignOutAlt} /> <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </nav>
   );
 };
 
