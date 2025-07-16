@@ -15,6 +15,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const [completedExercises, setCompletedExercises] = useState([]);
   const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [aiFeedback, setAiFeedback] = useState('');
+  const [editingExercise, setEditingExercise] = useState(null);
 
 
   // ESTADO DEL MODAL (esto no cambia)
@@ -31,8 +32,12 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
       const progressSnap = await getDoc(progressRef);
 
       if (progressSnap.exists()) {
+        const data = progressSnap.data();
         // 2. Si existe, lo cargamos en el estado.
-        setProgress(progressSnap.data());
+        setProgress(data);
+        if (data.completedExercises) {
+          setCompletedExercises(data.completedExercises);
+        }
       } else {
         // Si no existe, el estado `progress` simplemente quedará como un objeto vacío {}.
         console.log(`No se encontró progreso para ${day}. Se creará al primer cambio.`);
@@ -65,16 +70,21 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const handleSaveProgress = async (exerciseTitle) => {
     if (!currentUser || !progress[exerciseTitle]) return;
 
+    const newCompletedExercises = [...completedExercises];
+    if (!newCompletedExercises.includes(exerciseTitle)) {
+      newCompletedExercises.push(exerciseTitle);
+    }
+
     const progressToSave = {
-      [exerciseTitle]: progress[exerciseTitle]
+      ...progress,
+      completedExercises: newCompletedExercises
     };
 
     const progressRef = doc(db, "userProgress", `${currentUser.uid}-${day}`);
     await setDoc(progressRef, progressToSave, { merge: true });
     
-    if (!completedExercises.includes(exerciseTitle)) {
-      setCompletedExercises([...completedExercises, exerciseTitle]);
-    }
+    setCompletedExercises(newCompletedExercises);
+    setEditingExercise(null); // Finaliza la edición al guardar
 
     // --- Lógica de Hito de PR ---
     const currentSets = progress[exerciseTitle];
@@ -114,6 +124,10 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
     // --- Fin de Lógica de Hito de PR ---
 
     alert(`Progreso de "${exerciseTitle}" guardado!`);
+  };
+
+  const handleEditClick = (exerciseTitle) => {
+    setEditingExercise(exerciseTitle);
   };
 
   const handleAIFeedback = async ({ hardestExercise, feeling }) => {
@@ -179,12 +193,22 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
       return <h4>Cargando progreso del día...</h4>
   }
 
+  const pendingExercises = exercises.map(group => ({
+    ...group,
+    list: group.list.filter(ex => !completedExercises.includes(ex.title))
+  })).filter(group => group.list.length > 0);
+
+  const completedExercisesList = exercises.map(group => ({
+    ...group,
+    list: group.list.filter(ex => completedExercises.includes(ex.title))
+  })).filter(group => group.list.length > 0);
+
   return (
     <>
       <div className={`day-section ${theme} ${isToday ? 'today' : ''}`}>
         <div className={`day-header ${theme}`}>{day} - {title}</div>
         <div className="day-content">
-          {exercises.map(group => (
+          {pendingExercises.map(group => (
             <div key={group.groupName} className="muscle-group">
               <h4>{group.groupName}</h4>
               <div className="exercise-grid">
@@ -192,16 +216,44 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
                   <ExerciseCard
                     key={ex.title}
                     exerciseData={ex}
-                    isCompleted={completedExercises.includes(ex.title)}
+                    isCompleted={false}
+                    isEditing={editingExercise === ex.title}
                     setsData={progress[ex.title] || []}
                     onSetChange={(setIndex, field, value) => handleSetChange(ex.title, setIndex, field, value)}
                     onSave={() => handleSaveProgress(ex.title)}
                     onCardClick={() => openExerciseDetails(ex)}
+                    onEditClick={() => handleEditClick(ex.title)}
                   />
                 ))}
               </div>
             </div>
           ))}
+
+          {completedExercisesList.length > 0 && (
+            <div className="completed-section">
+              <h4 className="completed-title">Completados</h4>
+              {completedExercisesList.map(group => (
+                <div key={group.groupName} className="muscle-group">
+                  <h4>{group.groupName}</h4>
+                  <div className="exercise-grid">
+                    {group.list.map(ex => (
+                      <ExerciseCard
+                        key={ex.title}
+                        exerciseData={ex}
+                        isCompleted={true}
+                        isEditing={editingExercise === ex.title}
+                        setsData={progress[ex.title] || []}
+                        onSetChange={(setIndex, field, value) => handleSetChange(ex.title, setIndex, field, value)}
+                        onSave={() => handleSaveProgress(ex.title)}
+                        onCardClick={() => openExerciseDetails(ex)}
+                        onEditClick={() => handleEditClick(ex.title)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="day-footer">
           <button 

@@ -10,8 +10,10 @@ import React from 'react';
  * - onSave: Una función que se llama para guardar el progreso del ejercicio actual.
  * - onCardClick: Una función que se llama cuando se hace clic en la tarjeta para abrir el modal de detalles.
  * - isCompleted: Un booleano que indica si el ejercicio se ha guardado al menos una vez.
+ * - isEditing: Un booleano que indica si la tarjeta está en modo de edición.
+ * - onEditClick: Una función que se llama para activar el modo de edición.
  */
-const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick, isCompleted }) => {
+const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick, isCompleted, isEditing, onEditClick }) => {
 // Desestructuramos los datos del ejercicio para usarlos más fácilmente en el JSX.
   const { title, details, muscles, reps } = exerciseData;
 
@@ -31,7 +33,10 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, o
     //    Añadimos la clase 'finished' si el ejercicio está completado.
     <div className={`exercise-card clickable ${isCompleted ? 'finished' : ''}`} onClick={onCardClick}>
       
-      <h4>{title}</h4>
+      <div className="exercise-header">
+        <h4>{title}</h4>
+        {isCompleted && <span className="completed-check">✓</span>}
+      </div>
       <div className="exercise-details">
         <strong>Técnica:</strong> {details}<br />
         <strong>Músculos:</strong> {muscles}
@@ -41,6 +46,7 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, o
       {/* 2. El contenedor del tracker detiene la propagación del clic.
              Esto es un truco para que, si hacés clic en un input o checkbox,
              NO se dispare el `onClick` de la tarjeta principal y no se abra el modal. */}
+      {(!isCompleted || isEditing) && (
       <div className="sets-tracker" onClick={(e) => e.stopPropagation()}>
         <h5>Seguimiento de Series:</h5>
         <div className="sets-grid">
@@ -80,16 +86,43 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, o
             </div>
           ))}
         </div>
-        <button 
-          className="save-progress-btn" 
-          onClick={(e) => {
-            e.stopPropagation(); // Evita que se abra el modal
-            onSave();
-          }}
-        >
-          Guardar Progreso
-        </button>
       </div>
+      )}
+      <div className="card-footer">
+          {!isCompleted && (
+            <button 
+              className="save-progress-btn" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onSave();
+              }}
+            >
+              Guardar Progreso
+            </button>
+          )}
+          {isCompleted && !isEditing && (
+            <button 
+              className="edit-progress-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditClick();
+              }}
+            >
+              Editar
+            </button>
+          )}
+          {isEditing && (
+            <button 
+              className="save-progress-btn" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onSave();
+              }}
+            >
+              Guardar Cambios
+            </button>
+          )}
+        </div>
     </div>
   );
 };

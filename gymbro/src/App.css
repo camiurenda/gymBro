@@ -176,6 +176,21 @@ body {
   padding: 25px;
 }
 
+.completed-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid var(--accent-blue);
+}
+
+.completed-title {
+  text-align: center;
+  color: var(--accent-blue);
+  margin-bottom: 20px;
+  font-size: 1.4em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 /* ================================================
   Tarjetas de Ejercicio y Grillas
   ================================================ */
@@ -203,12 +218,53 @@ body {
   background: var(--bg-card-hover);
 }
 
-.exercise-card h4 {
-  color: var(--text-primary);
-  margin-bottom: 10px;
-  font-size: 1.1em;
+.exercise-card .exercise-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 2px solid var(--accent-blue);
   padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.exercise-card h4 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.1em;
+  border-bottom: none; 
+  padding-bottom: 0;
+}
+
+.completed-check {
+  color: #2ecc71;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.edit-progress-btn {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.edit-progress-btn:hover {
+  background-color: #e67e22;
+}
+
+.exercise-card.finished {
+  background-color: #3a3a3a;
+  border-color: #555;
 }
 
 .exercise-details {
