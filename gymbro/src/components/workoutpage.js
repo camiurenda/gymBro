@@ -11,6 +11,7 @@ const WorkoutPage = () => {
   const { currentUser } = useAuth();
   const [workoutPlan, setWorkoutPlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showOtherDays, setShowOtherDays] = useState(false);
 
   // Esta función es para tu botón temporal.
   const handleAssignMyPlan = async () => {
@@ -59,19 +60,61 @@ const WorkoutPage = () => {
     );
   }
   
+  // --- LÓGICA PARA FILTRAR LOS DÍAS ---
+  const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+  const todayName = dayNames[new Date().getDay()];
+
+  const todayWorkout = workoutPlan.trainingDays.find(day => day.day.toUpperCase() === todayName.toUpperCase());
+  const otherWorkouts = workoutPlan.trainingDays.filter(day => day.day.toUpperCase() !== todayName.toUpperCase());
+
   return (
     <>
       <Header />
-      <h2 className="section-title">Tu Semana</h2>
-      {workoutPlan.trainingDays.map(dayData => (
-        <DaySection
-          key={dayData.day}
-          day={dayData.day}
-          title={dayData.title}
-          theme={dayData.theme}
-          exercises={dayData.exercises}
-        />
-      ))}
+      {/* --- SECCIÓN DEL DÍA ACTUAL --- */}
+      {todayWorkout ? (
+        <>
+          <h2 className="section-title">Hoy es {todayName}</h2>
+          <DaySection
+            key={todayWorkout.day}
+            day={todayWorkout.day}
+            title={todayWorkout.title}
+            theme={todayWorkout.theme}
+            exercises={todayWorkout.exercises}
+            isToday={true} // Prop opcional para destacar
+          />
+        </>
+      ) : (
+        <div className="auth-container">
+          <h2 className="section-title">¡Día de descanso!</h2>
+          <p>Hoy es {todayName} y no tenés entrenamiento programado. ¡Aprovechá para recargar energías!</p>
+        </div>
+      )}
+
+      {/* --- SECCIÓN COLAPSABLE PARA OTROS DÍAS --- */}
+      <div className="other-days-container">
+        <button 
+          className="collapse-button" 
+          onClick={() => setShowOtherDays(!showOtherDays)}
+        >
+          {showOtherDays ? 'Ocultar otros días' : 'Ver otros días de la semana'}
+        </button>
+
+        {showOtherDays && (
+          <div className="other-days-content">
+            <div className="other-days-grid">
+              {otherWorkouts.map(dayData => (
+                <DaySection
+                  key={dayData.day}
+                  day={dayData.day}
+                  title={dayData.title}
+                  theme={dayData.theme}
+                  exercises={dayData.exercises}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 };

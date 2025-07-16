@@ -145,6 +145,13 @@ body {
 .day-section {
   border: 1px solid var(--border-color);
   overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.day-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .time-info, .mobility-section, .tips-section, .progression-table {
@@ -173,10 +180,7 @@ body {
   Tarjetas de Ejercicio y Grillas
   ================================================ */
 .exercise-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
+  display: contents;
 }
 
 .exercise-card {
@@ -185,6 +189,9 @@ body {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   transition: transform 0.3s ease, background 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
 
 .exercise-card.clickable {
@@ -226,6 +233,7 @@ body {
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid var(--border-color);
+  width: 100%;
 }
 .sets-tracker h5 {
   color: var(--text-secondary);
@@ -280,6 +288,61 @@ body {
 
 .save-progress-btn:hover {
   background-color: #a2d2ff;
+}
+
+/* ================================================
+  Sección de Otros Días (Colapsable)
+  ================================================ */
+.other-days-container {
+  margin: 40px 20px;
+  border-radius: 15px;
+  overflow: hidden; /* Para que el contenido no se salga de los bordes redondeados */
+  background-color: transparent; /* Hacemos el contenedor transparente */
+  border: none; /* Quitamos el borde */
+}
+
+.collapse-button {
+  width: 100%;
+  padding: 18px;
+  background: var(--gradient-miercoles); /* Usamos un gradiente atractivo */
+  border: none;
+  color: var(--text-on-gradient);
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.collapse-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.other-days-content {
+  background-color: var(--bg-container);
+  transition: all 0.4s ease-in-out;
+  padding: 20px; /* Añadimos un padding general */
+}
+
+.other-days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* Ajustes para el día actual */
+.day-section.today {
+  border: 2px solid var(--accent-blue);
+  box-shadow: 0 0 15px rgba(116, 185, 255, 0.3);
 }
 
 .set-item input {
@@ -540,4 +603,23 @@ body {
   border-radius: 8px;
   margin-bottom: 15px;
   text-align: center;
+}
+
+.save-progress-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--accent-blue);
+  color: #1a1a1a;
+  font-weight: bold;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.save-progress-btn:hover {
+  background-color: #a2d2ff;
 }

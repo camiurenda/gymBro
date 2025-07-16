@@ -9,8 +9,9 @@ import React from 'react';
  * - onSetChange: Una función que se llama cuando se modifica cualquier input de una serie (el checkbox, el peso o las reps).
  * - onSave: Una función que se llama para guardar el progreso del ejercicio actual.
  * - onCardClick: Una función que se llama cuando se hace clic en la tarjeta para abrir el modal de detalles.
+ * - isCompleted: Un booleano que indica si el ejercicio se ha guardado al menos una vez.
  */
-const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick }) => {
+const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick, isCompleted }) => {
 // Desestructuramos los datos del ejercicio para usarlos más fácilmente en el JSX.
   const { title, details, muscles, reps } = exerciseData;
 
@@ -27,7 +28,8 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, o
   return (
     // 1. La tarjeta entera es clicable y llama a `onCardClick` para abrir el modal.
     //    La clase 'clickable' le da el cursor de puntero.
-    <div className="exercise-card clickable" onClick={onCardClick}>
+    //    Añadimos la clase 'finished' si el ejercicio está completado.
+    <div className={`exercise-card clickable ${isCompleted ? 'finished' : ''}`} onClick={onCardClick}>
       
       <h4>{title}</h4>
       <div className="exercise-details">
