@@ -16,6 +16,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [aiFeedback, setAiFeedback] = useState('');
   const [editingExercise, setEditingExercise] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
 
   // ESTADO DEL MODAL (esto no cambia)
@@ -131,6 +132,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   };
 
   const handleAIFeedback = async ({ hardestExercise, feeling }) => {
+    setIsLoading(true);
     const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
     const { displayName } = currentUser;
     
@@ -142,7 +144,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
     });
 
     const prompt = `
-      Eres un coach de fitness virtual llamado 'Gemini Coach', eres positivo, empático y motivador. Un usuario acaba de terminar su rutina. Aquí están sus datos:
+      Eres un coach de fitness virtual llamado 'AI Coach', eres positivo, empático y motivador. Un usuario acaba de terminar su rutina. Aquí están sus datos:
 
       - Nombre de usuario: ${displayName}
       - Día de entrenamiento: ${day} - ${title}
@@ -182,6 +184,8 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
     } catch (error) {
       console.error('Error fetching AI feedback:', error);
       setAiFeedback('Ocurrió un error al contactar a la IA. Revisa la consola.');
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -274,6 +278,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
         completedExercises={completedExercises}
         onSubmit={handleAIFeedback}
         aiFeedback={aiFeedback}
+        isLoading={isLoading}
       />
     </>
   );

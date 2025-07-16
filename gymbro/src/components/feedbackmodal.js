@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from './modal';
 
-const FeedbackModal = ({ isOpen, onClose, completedExercises, onSubmit, aiFeedback }) => {
+const FeedbackModal = ({ isOpen, onClose, completedExercises, onSubmit, aiFeedback, isLoading }) => {
   const [hardestExercise, setHardestExercise] = useState('');
   const [feeling, setFeeling] = useState('');
 
@@ -16,9 +16,14 @@ const FeedbackModal = ({ isOpen, onClose, completedExercises, onSubmit, aiFeedba
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="feedback-modal-content">
         <h2>Feedback del Día</h2>
-        {aiFeedback ? (
-          <div className="ai-feedback">
-            <h3>Feedback de Gemini Coach:</h3>
+        {isLoading ? (
+          <div className="loading-feedback">
+            <div className="spinner"></div>
+            <p>Tu AI Coach está analizando tu progreso...</p>
+          </div>
+        ) : aiFeedback ? (
+          <div className="ai-feedback-card">
+            <h3><span role="img" aria-label="coach">🤖</span> AI Coach Dice:</h3>
             <p>{aiFeedback}</p>
           </div>
         ) : (
