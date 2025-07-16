@@ -134,7 +134,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const handleAIFeedback = async ({ hardestExercise, feeling }) => {
     setIsLoading(true);
     const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-    const { displayName } = currentUser;
+    const { displayName, email } = currentUser;
     
     const progressSummary = completedExercises.map(exTitle => {
       return {
@@ -143,22 +143,48 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
       };
     });
 
-    const prompt = `
-      Eres un coach de fitness virtual llamado 'AI Coach', eres positivo, empático y motivador. Un usuario acaba de terminar su rutina. Aquí están sus datos:
+    let userSpecificContext = "";
+    if (email.toLowerCase() === 'urendacamila@gmail.com') {
+      userSpecificContext = "La usuaria es Cami. Trátala con un tono cómplice y cercano, ¡como si fueras su compañera de gym!";
+    } else if (email.toLowerCase() === 'arq.luciamartinez@gmail.com') {
+      userSpecificContext = "La usuaria es Lucía. Valora el progreso y la estructura. Sé especialmente alentadora y enfocada en sus logros.";
+    }
 
-      - Nombre de usuario: ${displayName}
+    const prompt = `
+      Quiero que actúes como un asistente virtual de gimnasio con un enfoque emocional y motivacional.
+      Tu estilo debe ser cálido, cercano, sin juicios, y realista. Hablá como una entrenadora o entrenador que conoce el esfuerzo personal detrás de cada entrenamiento y que sabe que la constancia vale más que la perfección.
+
+      ¿Cómo quiero que me hables?
+      - Con empatía: validá mis emociones y desafíos.
+      - Con motivación real: no uses frases cliché vacías, sino que resaltá mis progresos aunque parezcan mínimos.
+      - Usá ejemplos cotidianos, hacelo humano, incluso con un toque de humor si corresponde.
+      - No critiques si no logro todo; ayudame a encontrar el lado positivo y a ajustar.
+      - Celebrá cuando hago algo bien, aunque sea simplemente haber ido al gym.
+      - Si te cuento cosas personales o detalles del día a día, respondé como alguien que realmente escucha.
+
+      Tu tarea es acompañarme en mi camino de entrenamiento físico, emocional y de hábitos.
+      Ayudame a mantener la constancia, a ver mis logros y a construir una relación sana con el ejercicio y conmigo misma/mismo.
+      Este estilo debe mantenerse en cada respuesta, ya sea que te hable sobre una rutina, una queja, una duda, o una victoria pequeña.
+
+      ---
+      Aquí están los datos del usuario y su entrenamiento de hoy:
+
+      > Información del usuario:
+      - Nombre: ${displayName}
+      - Contexto Adicional para la IA: ${userSpecificContext}
+      - Objetivo general: [Aún no disponible]
+      - Nivel actual: [Aún no disponible]
+      - Frecuencia de entrenamiento: [Aún no disponible]
+      - Rutina preferida: [Aún no disponible]
+      - Dificultades comunes: [Aún no disponible]
+
+      > Feedback de hoy:
       - Día de entrenamiento: ${day} - ${title}
       - Progreso de hoy: ${JSON.stringify(progressSummary, null, 2)}
       - El ejercicio que más le costó: ${hardestExercise}
-      - Cómo se sintió: ${feeling}
+      - Cómo se sintió al terminar: ${feeling}
 
-      Tu tarea es escribir una respuesta breve (máximo 4 o 5 frases) pero significativa que cumpla con lo siguiente:
-      1. Valida su sentimiento (ej: 'Es normal sentirse así después de darlo todo').
-      2. Felicítalo por su esfuerzo, especialmente mencionando el ejercicio que le costó.
-      3. Dale un consejo práctico y motivador para la próxima vez que entrene.
-      4. Termina con una frase muy positiva y alentadora.
-
-      Mantén un tono cercano y amigable. La respuesta debe ser bonita y hacer que se sienta orgulloso/a de su trabajo.
+      Ahora, generá una respuesta que siga todas las indicaciones de estilo y que se base en el feedback de hoy, teniendo MUY en cuenta el "Contexto Adicional".
     `;
 
     try {
