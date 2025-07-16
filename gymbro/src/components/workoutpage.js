@@ -64,8 +64,27 @@ const WorkoutPage = () => {
   const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
   const todayName = dayNames[new Date().getDay()];
 
-  const todayWorkout = workoutPlan.trainingDays.find(day => day.day.toUpperCase() === todayName.toUpperCase());
-  const otherWorkouts = workoutPlan.trainingDays.filter(day => day.day.toUpperCase() !== todayName.toUpperCase());
+  const isNumberedPlan = workoutPlan.trainingDays.some(day => /\d/.test(day.day));
+
+  let todayWorkout;
+  let otherWorkouts;
+
+  if (isNumberedPlan) {
+    const today = new Date().getDay();
+    // Sunday is 0, Saturday is 6. We want to map Monday-Thursday to DÍA 1-4
+    if (today >= 1 && today <= 4) { // Monday to Thursday
+      const dayNumber = today;
+      todayWorkout = workoutPlan.trainingDays.find(day => day.day === `DÍA ${dayNumber}`);
+      otherWorkouts = workoutPlan.trainingDays.filter(day => day.day !== `DÍA ${dayNumber}`);
+    } else {
+      // It's Friday, Saturday or Sunday, so no workout
+      todayWorkout = null;
+      otherWorkouts = workoutPlan.trainingDays;
+    }
+  } else {
+    todayWorkout = workoutPlan.trainingDays.find(day => day.day.toUpperCase() === todayName.toUpperCase());
+    otherWorkouts = workoutPlan.trainingDays.filter(day => day.day.toUpperCase() !== todayName.toUpperCase());
+  }
 
   return (
     <>
