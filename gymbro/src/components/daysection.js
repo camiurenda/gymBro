@@ -6,6 +6,14 @@ import ExerciseCard from './excersicecard';
 import Modal from './modal';
 import FeedbackModal from './feedbackmodal'; // Importar el nuevo modal
 
+const getWeekNumber = (d) => {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return [d.getUTCFullYear(), weekNo];
+};
+
 const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const { currentUser } = useAuth();
   
@@ -27,9 +35,9 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
     if (!currentUser || !day) return;
 
     const fetchProgress = async () => {
-      // 1. Creamos una referencia al documento de progreso del usuario para este día específico.
-      //    El ID será, por ejemplo, "ID_DEL_USUARIO-LUNES"
-      const progressRef = doc(db, "userProgress", `${currentUser.uid}-${day}`);
+      const [year, week] = getWeekNumber(new Date());
+      const progressId = `${currentUser.uid}-${year}-${week}-${day}`;
+      const progressRef = doc(db, "userProgress", progressId);
       const progressSnap = await getDoc(progressRef);
 
       if (progressSnap.exists()) {
@@ -81,7 +89,9 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
       completedExercises: newCompletedExercises
     };
 
-    const progressRef = doc(db, "userProgress", `${currentUser.uid}-${day}`);
+    const [year, week] = getWeekNumber(new Date());
+    const progressId = `${currentUser.uid}-${year}-${week}-${day}`;
+    const progressRef = doc(db, "userProgress", progressId);
     await setDoc(progressRef, progressToSave, { merge: true });
     
     setCompletedExercises(newCompletedExercises);
@@ -100,7 +110,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
         const data = doc.data();
         if (data[exerciseTitle]) {
           // Exclude the current day's progress from the check
-          if (doc.id !== `${currentUser.uid}-${day}`) {
+          if (doc.id !== progressId) {
             const maxWeightInDoc = Math.max(...data[exerciseTitle].map(s => parseFloat(s.weight) || 0));
             if (maxWeightInDoc > previousMaxWeight) {
               previousMaxWeight = maxWeightInDoc;
