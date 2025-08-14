@@ -119,7 +119,8 @@ const DaySection = ({ day, title, theme, exercises, isToday = false, isSelectabl
 
     const progressToSave = {
       ...progress,
-      completedExercises: newCompletedExercises
+      completedExercises: newCompletedExercises,
+      createdAt: serverTimestamp()
     };
 
     const [year, week] = getWeekNumber(new Date());

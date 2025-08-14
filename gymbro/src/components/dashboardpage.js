@@ -34,12 +34,17 @@ const DashboardPage = () => {
         const docId = doc.id;
         const dayData = doc.data();
         
-        // Extraemos la fecha del ID del documento para ordenar
-        const parts = docId.split('-');
-        const year = parseInt(parts[1], 10);
-        const week = parseInt(parts[2], 10);
-        // Asumimos que el día es el inicio de la semana para el orden
-        const sessionDate = new Date(year, 0, 1 + (week - 1) * 7);
+        // Usamos el timestamp si existe, si no, calculamos la fecha como antes.
+        let sessionDate;
+        if (dayData.createdAt && dayData.createdAt.toDate) {
+          sessionDate = dayData.createdAt.toDate();
+        } else {
+          // Fallback para datos antiguos sin timestamp
+          const parts = docId.split('-');
+          const year = parseInt(parts[1], 10);
+          const week = parseInt(parts[2], 10);
+          sessionDate = new Date(year, 0, 1 + (week - 1) * 7);
+        }
 
         progressBySession[docId] = {
           date: sessionDate,
