@@ -68,9 +68,20 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
       newProgress[exerciseTitle] = Array(numSets).fill({ completed: false, weight: '', reps: '' });
     }
 
+    let processedValue = value;
+    if ((field === 'weight' || field === 'reps') && value !== '') {
+      // Reemplazamos la coma (,) por un punto (.) para asegurar que parseFloat funcione con decimales.
+      const parsed = parseFloat(String(value).replace(',', '.'));
+      // Si el resultado es un número válido (no es NaN), usamos ese número.
+      // Si no, mantenemos el valor original para que el usuario vea lo que escribió.
+      if (!isNaN(parsed)) {
+        processedValue = parsed;
+      }
+    }
+
     newProgress[exerciseTitle][setIndex] = {
       ...newProgress[exerciseTitle][setIndex],
-      [field]: value
+      [field]: processedValue
     };
 
     setProgress(newProgress);

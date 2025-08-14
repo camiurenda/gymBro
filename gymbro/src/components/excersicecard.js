@@ -21,11 +21,11 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, o
   const numberOfSets = parseInt(reps) || 0;
 
   // Si no hay datos de progreso guardados para este ejercicio, creamos una estructura por defecto para mostrar.
-  const sets = setsData.length > 0 ? setsData : Array(numberOfSets).fill({
+  const sets = setsData.length > 0 ? setsData : Array.from({ length: numberOfSets }, () => ({
     completed: false,
     weight: '',
     reps: ''
-  });
+  }));
 
   return (
     // 1. La tarjeta entera es clicable y llama a `onCardClick` para abrir el modal.
