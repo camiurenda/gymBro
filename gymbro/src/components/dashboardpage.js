@@ -93,30 +93,42 @@ const DashboardPage = () => {
   // --- EFECTO PARA ACTUALIZAR EL GRÁFICO CUANDO CAMBIA EL EJERCICIO SELECCIONADO ---
   useEffect(() => {
     if (selectedExercise && exerciseProgress[selectedExercise]) {
-      // 1. Obtenemos todas las sesiones para el ejercicio seleccionado.
       const sessionsForExercise = exerciseProgress[selectedExercise];
 
-      // 2. Calculamos el peso máximo para CADA sesión.
-      const maxWeightsPerSession = sessionsForExercise.map(session => {
-        // Nos aseguramos de que 'session.sets' sea un array antes de usar 'map'.
-        if (!Array.isArray(session.sets)) {
-          return 0; // Si no hay 'sets', el peso máximo es 0.
+      // 2. Calculamos un objeto con toda la info del PR de CADA sesión.
+      const recordsPerSession = sessionsForExercise.map(session => {
+        if (!Array.isArray(session.sets) || session.sets.length === 0) {
+          return { weight: 0, reps: 0, date: session.date };
         }
-        // Calculamos el peso máximo de esta sesión específica.
-        const weightsInSession = session.sets
-          .map(set => parseFloat(set.weight) || 0); // Convertimos cada peso a número.
-        return Math.max(...weightsInSession); // Devolvemos el más alto.
+
+        // Encontramos el set con el peso máximo en la sesión.
+        const recordSet = session.sets.reduce((max, current) => {
+          const maxWeight = parseFloat(max.weight) || 0;
+          const currentWeight = parseFloat(current.weight) || 0;
+          return currentWeight > maxWeight ? current : max;
+        });
+        
+        return {
+          weight: parseFloat(recordSet.weight) || 0,
+          reps: parseInt(recordSet.reps, 10) || 0,
+          date: session.date
+        };
       });
 
-      // 3. Creamos las etiquetas para el gráfico.
-      const chartLabels = sessionsForExercise.map((_, index) => `Sesión ${index + 1}`);
+      // 3. Creamos las etiquetas (fechas) y los datos (pesos) para el gráfico.
+      const chartLabels = recordsPerSession.map(r => r.date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }));
+      const chartData = recordsPerSession.map(r => r.weight);
+      
+      // Guardamos los datos completos para usarlos en los tooltips.
+      const fullData = recordsPerSession;
 
-      // 4. Actualizamos el estado del gráfico con los datos correctos.
+      // 4. Actualizamos el estado del gráfico.
       setExerciseChartData({
         labels: chartLabels,
         datasets: [{
           label: `Peso Máx. en ${selectedExercise} (kg)`,
-          data: maxWeightsPerSession, // Usamos el array de pesos máximos por sesión.
+          data: chartData,
+          fullData: fullData, // Propiedad personalizada para el tooltip
           borderColor: 'rgb(116, 185, 255)',
           backgroundColor: 'rgba(116, 185, 255, 0.5)',
           tension: 0.1
@@ -141,6 +153,20 @@ const DashboardPage = () => {
     plugins: {
       legend: { position: 'top', labels: { color: '#f0f0f0' } },
       title: { display: true, text, color: '#f0f0f0', font: { size: 18 } },
+      tooltip: {
+        callbacks: {
+          // Personalizamos el tooltip para mostrar las repeticiones.
+          footer: function(tooltipItems) {
+            const item = tooltipItems[0];
+            const fullData = item.dataset.fullData; // Accedemos a nuestros datos completos.
+            const record = fullData[item.dataIndex];
+            if (record && record.reps > 0) {
+              return `Repeticiones: ${record.reps}`;
+            }
+            return '';
+          }
+        }
+      }
     },
     scales: {
       y: { ticks: { color: '#f0f0f0' }, grid: { color: 'rgba(240, 240, 240, 0.1)' } },
