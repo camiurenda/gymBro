@@ -11,7 +11,7 @@ const WorkoutPage = () => {
   const { currentUser } = useAuth();
   const [workoutPlan, setWorkoutPlan] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showOtherDays, setShowOtherDays] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState(null); // Nuevo estado para la rutina seleccionada
 
   // Esta función es para tu botón temporal.
   const handleAssignMyPlan = async () => {
@@ -59,80 +59,48 @@ const WorkoutPage = () => {
       </div>
     );
   }
-  
-  // --- LÓGICA PARA FILTRAR LOS DÍAS ---
-  const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  const todayName = dayNames[new Date().getDay()];
 
-  const isNumberedPlan = workoutPlan.trainingDays.some(day => /\d/.test(day.day));
-
-  let todayWorkout;
-  let otherWorkouts;
-
-  if (isNumberedPlan) {
-    const today = new Date().getDay();
-    // Sunday is 0, Saturday is 6. We want to map Monday-Thursday to DÍA 1-4
-    if (today >= 1 && today <= 4) { // Monday to Thursday
-      const dayNumber = today;
-      todayWorkout = workoutPlan.trainingDays.find(day => day.day === `DÍA ${dayNumber}`);
-      otherWorkouts = workoutPlan.trainingDays.filter(day => day.day !== `DÍA ${dayNumber}`);
-    } else {
-      // It's Friday, Saturday or Sunday, so no workout
-      todayWorkout = null;
-      otherWorkouts = workoutPlan.trainingDays;
-    }
-  } else {
-    todayWorkout = workoutPlan.trainingDays.find(day => day.day.toUpperCase() === todayName.toUpperCase());
-    otherWorkouts = workoutPlan.trainingDays.filter(day => day.day.toUpperCase() !== todayName.toUpperCase());
+  // Si hay una rutina seleccionada, la mostramos
+  if (selectedWorkout) {
+    return (
+      <>
+        <Header />
+        <div className="workout-view">
+          <button className="collapse-button" onClick={() => setSelectedWorkout(null)}>
+            Elegir otra rutina
+          </button>
+          <DaySection
+            key={selectedWorkout.day}
+            day={selectedWorkout.day}
+            title={selectedWorkout.title}
+            theme={selectedWorkout.theme}
+            exercises={selectedWorkout.exercises}
+            isToday={true}
+          />
+        </div>
+      </>
+    );
   }
 
+  // Si no hay rutina seleccionada, mostramos la pantalla de selección
   return (
     <>
       <Header />
-      {/* --- SECCIÓN DEL DÍA ACTUAL --- */}
-      {todayWorkout ? (
-        <>
-          <h2 className="section-title">Hoy es {todayName}</h2>
-          <DaySection
-            key={todayWorkout.day}
-            day={todayWorkout.day}
-            title={todayWorkout.title}
-            theme={todayWorkout.theme}
-            exercises={todayWorkout.exercises}
-            isToday={true} // Prop opcional para destacar
-          />
-        </>
-      ) : (
-        <div className="auth-container">
-          <h2 className="section-title">¡Día de descanso!</h2>
-          <p>Hoy es {todayName} y no tenés entrenamiento programado. ¡Aprovechá para recargar energías!</p>
-        </div>
-      )}
-
-      {/* --- SECCIÓN COLAPSABLE PARA OTROS DÍAS --- */}
-      <div className="other-days-container">
-        <button 
-          className="collapse-button" 
-          onClick={() => setShowOtherDays(!showOtherDays)}
-        >
-          {showOtherDays ? 'Ocultar otros días' : 'Ver otros días de la semana'}
-        </button>
-
-        {showOtherDays && (
-          <div className="other-days-content">
-            <div className="other-days-grid">
-              {otherWorkouts.map(dayData => (
-                <DaySection
-                  key={dayData.day}
-                  day={dayData.day}
-                  title={dayData.title}
-                  theme={dayData.theme}
-                  exercises={dayData.exercises}
-                />
-              ))}
+      <div className="auth-container">
+        <h2 className="section-title">¿Qué rutina querés hacer hoy?</h2>
+        <div className="other-days-grid">
+          {workoutPlan.trainingDays.map(dayData => (
+            <div className="day-card" key={dayData.day} onClick={() => setSelectedWorkout(dayData)}>
+              <DaySection
+                day={dayData.day}
+                title={dayData.title}
+                theme={dayData.theme}
+                exercises={dayData.exercises}
+                isSelectable={true} // Prop para modo "tarjeta"
+              />
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </>
   );

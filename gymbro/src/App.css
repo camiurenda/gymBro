@@ -852,3 +852,39 @@ body {
   box-shadow: none;
   transform: none;
 }
+
+/* ================================================
+  Nuevos Estilos para Selección de Rutina
+  ================================================ */
+.workout-view {
+  padding: 20px;
+}
+
+.workout-view .collapse-button {
+  margin-bottom: 20px;
+}
+
+.day-card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.day-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.day-section.selectable {
+  margin: 0; /* Quitamos el margen para que se ajuste a la tarjeta */
+  pointer-events: none; /* Evita que los elementos internos capturen el clic */
+}
+
+.day-content-title {
+  padding: 20px;
+  text-align: center;
+}
+
+.day-content-title h4 {
+  font-size: 1.3em;
+  color: var(--text-primary);
+}

@@ -14,7 +14,7 @@ const getWeekNumber = (d) => {
   return [d.getUTCFullYear(), weekNo];
 };
 
-const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
+const DaySection = ({ day, title, theme, exercises, isToday = false, isSelectable = false }) => {
   const { currentUser } = useAuth();
   
   // El estado del progreso se inicializa vacío. Se cargará desde Firestore.
@@ -27,13 +27,13 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [maxWeights, setMaxWeights] = useState({});
 
-
   // ESTADO DEL MODAL (esto no cambia)
   const [isModalOpen] = useState(false);
 
   // --- LÓGICA DE FIRESTORE ---
   useEffect(() => {
-    if (!currentUser) return;
+    // No ejecutamos el fetch si es solo una tarjeta de selección.
+    if (isSelectable || !currentUser) return;
 
     const fetchInitialData = async () => {
       setLoadingProgress(true);
@@ -261,6 +261,18 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   // --- Lógica del Modal (no cambia) ---
   const openExerciseDetails = (exercise) => { /* ... */ };
   const closeExerciseDetails = () => { /* ... */ };
+
+  // Si es solo una tarjeta para seleccionar, mostramos una versión simplificada DESPUÉS de los hooks.
+  if (isSelectable) {
+    return (
+      <div className={`day-section ${theme} selectable`}>
+        <div className={`day-header ${theme}`}>{day}</div>
+        <div className="day-content-title">
+          <h4>{title}</h4>
+        </div>
+      </div>
+    );
+  }
 
   if (loadingProgress) {
       return <h4>Cargando progreso del día...</h4>
