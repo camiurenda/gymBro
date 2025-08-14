@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/authContext';
 import { db } from '../firebase-config';
-import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import ExerciseCard from './excersicecard';
 import Modal from './modal';
 import FeedbackModal from './feedbackmodal'; // Importar el nuevo modal
@@ -25,6 +25,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
   const [aiFeedback, setAiFeedback] = useState('');
   const [editingExercise, setEditingExercise] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [maxWeights, setMaxWeights] = useState({});
 
 
   // ESTADO DEL MODAL (esto no cambia)
@@ -32,9 +33,12 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
 
   // --- LÓGICA DE FIRESTORE ---
   useEffect(() => {
-    if (!currentUser || !day) return;
+    if (!currentUser) return;
 
-    const fetchProgress = async () => {
+    const fetchInitialData = async () => {
+      setLoadingProgress(true);
+
+      // --- 1. Cargar el progreso de HOY ---
       const [year, week] = getWeekNumber(new Date());
       const progressId = `${currentUser.uid}-${year}-${week}-${day}`;
       const progressRef = doc(db, "userProgress", progressId);
@@ -42,19 +46,37 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
 
       if (progressSnap.exists()) {
         const data = progressSnap.data();
-        // 2. Si existe, lo cargamos en el estado.
         setProgress(data);
         if (data.completedExercises) {
           setCompletedExercises(data.completedExercises);
         }
       } else {
-        // Si no existe, el estado `progress` simplemente quedará como un objeto vacío {}.
         console.log(`No se encontró progreso para ${day}. Se creará al primer cambio.`);
       }
+
+      // --- 2. Cargar el historial para calcular pesos máximos ---
+      const allTimeMaxWeights = {};
+      const q = query(collection(db, "userProgress"), where("__name__", ">=", currentUser.uid), where("__name__", "<=", currentUser.uid + '\uf8ff'));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const dayData = doc.data();
+        for (const exerciseTitle in dayData) {
+          if (exerciseTitle === 'completedExercises' || !Array.isArray(dayData[exerciseTitle])) continue;
+
+          const maxWeightInDoc = Math.max(...dayData[exerciseTitle].map(s => parseFloat(s.weight) || 0));
+
+          if (!allTimeMaxWeights[exerciseTitle] || maxWeightInDoc > allTimeMaxWeights[exerciseTitle]) {
+            allTimeMaxWeights[exerciseTitle] = maxWeightInDoc;
+          }
+        }
+      });
+      
+      setMaxWeights(allTimeMaxWeights);
       setLoadingProgress(false);
     };
 
-    fetchProgress();
+    fetchInitialData();
   }, [currentUser, day]);
 
 
@@ -270,6 +292,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
                     isCompleted={false}
                     isEditing={editingExercise === ex.title}
                     setsData={progress[ex.title] || []}
+                    maxWeight={maxWeights[ex.title] || 0}
                     onSetChange={(setIndex, field, value) => handleSetChange(ex.title, setIndex, field, value)}
                     onSave={() => handleSaveProgress(ex.title)}
                     onCardClick={() => openExerciseDetails(ex)}
@@ -294,6 +317,7 @@ const DaySection = ({ day, title, theme, exercises, isToday = false }) => {
                         isCompleted={true}
                         isEditing={editingExercise === ex.title}
                         setsData={progress[ex.title] || []}
+                        maxWeight={maxWeights[ex.title] || 0}
                         onSetChange={(setIndex, field, value) => handleSetChange(ex.title, setIndex, field, value)}
                         onSave={() => handleSaveProgress(ex.title)}
                         onCardClick={() => openExerciseDetails(ex)}

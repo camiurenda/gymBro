@@ -12,8 +12,9 @@ import React from 'react';
  * - isCompleted: Un booleano que indica si el ejercicio se ha guardado al menos una vez.
  * - isEditing: Un booleano que indica si la tarjeta está en modo de edición.
  * - onEditClick: Una función que se llama para activar el modo de edición.
+ * - maxWeight: El peso máximo histórico levantado para este ejercicio.
  */
-const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick, isCompleted, isEditing, onEditClick }) => {
+const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, onCardClick, isCompleted, isEditing, onEditClick, maxWeight }) => {
 // Desestructuramos los datos del ejercicio para usarlos más fácilmente en el JSX.
   const { title, details, muscles, reps } = exerciseData;
 
@@ -40,7 +41,11 @@ const ExerciseCard = ({ exerciseData = {}, setsData = [], onSetChange, onSave, o
       <div className="exercise-details">
         <strong>Técnica:</strong> {details}<br />
         <strong>Músculos:</strong> {muscles}
-        <div className="reps-badge">{reps}</div>
+        {maxWeight > 0 ? (
+          <div className="reps-badge pr-badge">PR: {maxWeight}kg</div>
+        ) : (
+          <div className="reps-badge">{reps}</div>
+        )}
       </div>
 
       {/* 2. El contenedor del tracker detiene la propagación del clic.
